@@ -1,0 +1,12 @@
+# Node modules and logs
+node_modules/
+npm-debug.log
+
+# OS and IDE-specific files
+.DS_Store
+.idea/
+.vscode/
+
+# Build files (will be created during runtime)
+dist/
+coverage/

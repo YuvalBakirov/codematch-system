@@ -1,0 +1,18 @@
+# Python cache and virtual environment
+venv/
+__pycache__/
+*.pyc
+*.pyo
+
+# Logs and temporary data
+*.log
+*.sqlite3
+*.db
+
+# OS and IDE-specific files
+.DS_Store
+.idea/
+.vscode/
+
+# Hugging Face models (created during runtime)
+huggingface_models/

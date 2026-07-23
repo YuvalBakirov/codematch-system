@@ -1,0 +1,53 @@
+version: '3.8'
+
+# Define services for the project
+services:
+  # Backend service for the FastAPI application
+  backend:
+    # Build the backend service from the Dockerfile in the "backend" directory
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    # Map the container's internal port 8000 to the host's port 8000
+    ports:
+      - "8000:8000"
+    # Mount the local backend directory to the container for real-time code changes (development convenience)
+    volumes:
+      - ./backend:/app
+    # Define environment variables for sensitive data such as API keys
+    environment:
+      - ENV=production
+      - HUGGING_FACE_TOKEN=${HUGGING_FACE_TOKEN}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - QDRANT_HOST=qdrant
+    # Ensure the backend service starts after the Qdrant database is ready
+    depends_on:
+      - qdrant
+
+  # Frontend service for the Vue.js application
+  frontend:
+    # Build the frontend service from the Dockerfile in the "frontend" directory
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    # Map the container's internal port 8080 to the host's port 8080
+    ports:
+      - "8080:8080"
+    # Mount the local frontend directory to the container for real-time changes (development convenience)
+    volumes:
+      - ./frontend:/app
+
+  # Qdrant service for the vector database
+  qdrant:
+    # Use the official Qdrant Docker image
+    image: qdrant/qdrant:v1.2.2
+    # Map the container's internal port 6333 to the host's port 6333 for API access
+    ports:
+      - "6333:6333"
+    # Mount a volume to persist Qdrant data across container restarts
+    volumes:
+      - qdrant_data:/qdrant/storage
+
+# Define volumes for persistent data storage
+volumes:
+  qdrant_data:

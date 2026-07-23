@@ -1,0 +1,8 @@
+node_modules/
+huggingface_models/
+__pycache__/
+*.pyc
+.venv/
+venv/
+.env
+.pytest_cache/
