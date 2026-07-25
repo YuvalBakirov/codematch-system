@@ -2,7 +2,7 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from typing import List, Dict
 from fastapi.middleware.cors import CORSMiddleware
-from tests.testing_system import process_user_input
+from search_service import process_user_input
 from app.database import load_model_with_retries
 from config import *
 
