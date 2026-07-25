@@ -8,12 +8,10 @@ from app.database import load_model_with_retries, create_embedding, generate_cod
 from qdrant_client.http.models import Filter, FieldCondition, MatchAny
 from config import *
 
-from llm_rerank.judge_client import ClaudeJudgeClient, JudgeClientError
-from llm_rerank.rerank import rerank_one
+from llm_rerank.live import apply_llm_rerank
 
 # Constants
 TOP_K_RESULTS = 8
-LLM_RERANK_TOP_N = 5  # only the top 5 of TOP_K_RESULTS are sent to the LLM judge
 
 # client = QdrantClient(url=f"http://{QDRANT_HOST}:{QDRANT_PORT}")
 
@@ -59,59 +57,6 @@ def display_results(results):
 
     print("\n")
     return list_results
-
-
-# Re-judge the top LLM_RERANK_TOP_N embedding-search results with Claude and
-# reorder them accordingly; results beyond that (6..TOP_K_RESULTS) are left
-# in their original embedding-similarity order.
-#
-# This reuses the exact same rerank_one() already covered by llm_rerank's
-# test suite (tests/test_llm_rerank/test_rerank.py) - no new reranking logic
-# is written here, only the glue that feeds this endpoint's results into it.
-#
-# On any judge failure (missing API key, malformed response, network error),
-# this falls back to the original embedding order rather than guessing or
-# raising - a failed live rerank should never break the search endpoint.
-def apply_llm_rerank(user_code, list_results):
-    top_n = list_results[:LLM_RERANK_TOP_N]
-    rest = list_results[LLM_RERANK_TOP_N:]
-
-    candidates = [
-        {"base_code_id": r["label"], "code": r["_content"]}
-        for r in top_n
-        if r["_content"]
-    ]
-
-    if not candidates:
-        for i, r in enumerate(list_results, start=1):
-            r["rerank_rank"] = i
-        return list_results
-
-    try:
-        client = ClaudeJudgeClient()
-        outcome = rerank_one(client, "live_query", None, user_code, candidates)
-    except JudgeClientError as e:
-        print(f"LLM rerank failed, keeping original embedding order: {e}")
-        for i, r in enumerate(list_results, start=1):
-            r["rerank_rank"] = i
-        return list_results
-
-    if outcome.judge_error:
-        print(f"LLM rerank failed, keeping original embedding order: {outcome.judge_error}")
-        for i, r in enumerate(list_results, start=1):
-            r["rerank_rank"] = i
-        return list_results
-
-    by_label = {r["label"]: r for r in top_n}
-    reranked_top_n = [by_label[label] for label in outcome.reranked_order if label in by_label]
-
-    final_results = reranked_top_n + rest
-    for i, r in enumerate(final_results, start=1):
-        r["rerank_rank"] = i
-    for r in reranked_top_n:
-        r["reranked"] = True
-
-    return final_results
 
 
 # Process a user-input code snippet.

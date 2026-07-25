@@ -1,9 +1,47 @@
 
-# CodeMatch - System
+# CodeMatch - Live Claude Rerank Integration
 
-The system repository hosts the final application of CodeMatch.
-In this repository, we outline the complete workflow, from retrieving code from the web to detecting code clones for a given code snippet.
-The system is divided into three core services: Backend, Frontend, and Vector Database.
+This repository is a standalone submission snapshot of the CodeMatch
+full-stack system with the tested Claude reranker integrated into its live
+search path. The original shared CodeMatch repository was not modified.
+
+## What the integration adds
+
+1. The existing embedding model retrieves eight candidates.
+2. Claude reviews and reranks only the top five.
+3. Results 6-8 retain their embedding-search order.
+4. The UI defaults to the AI-reranked order and marks reviewed results.
+5. Provider, network, timeout, malformed-output, and other handled rerank
+   failures degrade to the original embedding order.
+6. Results without retrievable source content are retained rather than
+   disappearing from the response.
+
+### Runtime model distinction
+
+- The recorded full-stack demo uses `microsoft/codebert-base` for embedding
+  retrieval.
+- Claude is the second-stage judge over the retrieved top five.
+- Qwen2.5-Coder-0.5B-pe was the preferred embedding model in the separate
+  benchmark comparison; it is not the active embedding runtime in this
+  snapshot.
+
+### Focused safeguard tests
+
+The lightweight live-rerank tests do not download an embedding model:
+
+```bash
+cd backend
+python -m pytest -q tests/test_live_rerank.py
+```
+
+They verify provider-failure fallback, preservation of partial missing-content
+results, and duplicate-label handling.
+
+## Original system context
+
+The system workflow covers retrieving open-source code, embedding and storing
+it in Qdrant, and returning similar projects through a FastAPI backend and Vue
+frontend.
 
 ## 🖥️ User Interface Overview
 
@@ -34,7 +72,8 @@ This step involves retrieving code projects from GitHub to populate the database
 
 <img src="https://github.com/user-attachments/assets/d6656be1-762f-4a78-978d-8db500746e4a" alt="Workflow" width="700">
 
-(This step is done in the following process - [populate_database.py](https://github.com/codematch-llm/system/blob/main/backend/app/populate_database.py))
+(This step is implemented in
+[`backend/app/populate_database.py`](backend/app/populate_database.py).)
 
 
 ## 📦🛠️ Installation and Run
@@ -57,7 +96,7 @@ This step involves retrieving code projects from GitHub to populate the database
 
 5. **Clone the Repository**:
    ```bash
-   git clone https://github.com/codematch-llm/system.git
+   git clone https://github.com/YuvalBakirov/codematch-system.git
    ```
 
 6. **Acquire Access to The-Stack-V2 Dataset**:   
