@@ -1,9 +1,23 @@
 
 # CodeMatch - Live Claude Rerank Integration
 
-This repository is a standalone submission snapshot of the CodeMatch
-full-stack system with the tested Claude reranker integrated into its live
-search path. The original shared CodeMatch repository was not modified.
+This is a supporting integration repository, not a separate portfolio project.
+It shows how Yuval Bakirov's independently developed Claude reranker was
+connected to the live search path of the collaborative
+[CodeMatch system](https://github.com/codematch-llm/system). The original shared
+CodeMatch repository remains unchanged.
+
+For the reranker implementation, evaluation, measured results, and standalone
+demo, see
+[`YuvalBakirov/codematch-llm-rerank`](https://github.com/YuvalBakirov/codematch-llm-rerank).
+
+## Project relationship
+
+| Repository | Role |
+| --- | --- |
+| [`codematch-llm/system`](https://github.com/codematch-llm/system) | Original collaborative CodeMatch application |
+| [`YuvalBakirov/codematch-llm-rerank`](https://github.com/YuvalBakirov/codematch-llm-rerank) | Independent reranking experiment and evaluation |
+| **This repository** | Supporting end-to-end integration of that extension |
 
 ## What the integration adds
 
@@ -36,6 +50,17 @@ python -m pytest -q tests/test_live_rerank.py
 
 They verify provider-failure fallback, preservation of partial missing-content
 results, and duplicate-label handling.
+
+### Recorded demo
+
+The [recorded demo](https://drive.google.com/file/d/1CPDyhbrUXTHNGGnUhLxFCY-KacYnn8AG/view?usp=drive_link)
+shows both the standalone evaluator and the live CodeMatch integration.
+
+## Rights and permitted use
+
+The source is publicly visible for portfolio review and technical evaluation.
+No permission is granted to copy, modify, distribute, sublicense, or use the
+project. See [`LICENSE.md`](LICENSE.md) for the full notice.
 
 ## Original system context
 
